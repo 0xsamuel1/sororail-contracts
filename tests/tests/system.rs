@@ -158,18 +158,18 @@ fn eighteen_decimal_token_lifecycles_conserve_value_across_every_contract() {
     assert_eq!(s.balance(&recipient), ATOMIC_18);
     s.assert_nothing_lost(&parties);
 
-    s.at(START);
+    let vesting_start = START + 100;
     s.vesting.create(
         &s.employer,
         &beneficiary,
         &s.token.address,
         &(4 * ATOMIC_18),
-        &START,
+        &vesting_start,
         &1,
         &4,
         &true,
     );
-    s.at(START + 4);
+    s.at(vesting_start + 4);
     assert_eq!(s.vesting.claim(), 4 * ATOMIC_18);
     assert_eq!(s.balance(&beneficiary), 7 * ATOMIC_18);
     s.assert_nothing_lost(&parties);
@@ -185,7 +185,7 @@ fn eighteen_decimal_token_lifecycles_conserve_value_across_every_contract() {
     let expiry = s.env.ledger().sequence() + 500_000;
     s.token
         .approve(&s.employer, &s.recurring.address, &ATOMIC_18, &expiry);
-    s.at(START + 5);
+    s.at(vesting_start + 5);
     assert_eq!(s.recurring.charge(), ATOMIC_18 / 2);
     s.recurring.cancel(&s.employer);
     assert_eq!(s.balance(&vendor), ATOMIC_18 / 2);
